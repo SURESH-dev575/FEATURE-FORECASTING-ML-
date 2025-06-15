@@ -1,0 +1,82 @@
+#NETFXIX STOCK PRICE ANLYSYS
+
+import pandas as pd
+import seaborn as sc
+import numpy as np
+import matplotlib.pyplot as plt
+
+df=pd.read_csv('/content/NFLX.csv') 
+df
+
+print('WE CAN ANLYSING THE DATE AND ADJ CLOSE')
+
+df.drop([	'Open',	'High',	'Low',	'Close' , 'Volume'],axis=1,inplace=True)
+df
+
+df.set_index('Date',inplace=True)
+df
+
+df.index = df.index.astype('datetime64[ns]')
+df
+
+year_2018 = df[df.index.year == 2018]
+year_2019 = df[df.index.year == 2019]
+year_2020 = df[df.index.year == 2020]
+year_2021 = df[df.index.year == 2021]
+year_2022 = df[df.index.year == 2022]
+
+print(year_2018.shape)
+print(year_2019.shape)
+print(year_2020.shape)
+print(year_2021.shape)
+print(year_2022.shape)
+
+data = year_2021.index.month.value_counts()
+data.sort_index(inplace=True)
+data
+year_2021[year_2021.index.month == 3]
+
+year_2021[year_2021.index.month == 3]
+
+print('CODE HAVE AN HOLYDAYS AND NOT PERFECT IMPLEMENT ON ARIMA AND SARIMAX DATA')
+print('IMPLEMENT ON PROPHET MODULE')
+df.plot()
+
+df['ds'] = df.index
+df['y'] = df['Adj Close']
+df.drop('Adj Close',axis=1,inplace=True)
+df.reset_index(drop=True,inplace=True)
+df
+
+!pip install prophet
+
+from prophet import Prophet
+model = Prophet()
+model.fit(df)
+
+dataframe = model.make_future_dataframe(periods=600)
+prediction = model.predict(dataframe)
+prediction
+
+data = prediction[['ds','yhat','yhat_lower','yhat_upper']]
+data
+
+print('ORIGINAL STOCK PRICE IS 2018-2022')
+plt.plot(data['ds'][:1000], data['yhat'][:1000], label='Prediction', color='blue')
+
+print('AFTER FORECASTING MODEL 2018-2025')
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(10, 6))
+plt.plot(data['ds'], data['yhat'], label='Prediction', color='blue')
+
+
+plt.fill_between(data['ds'], data['yhat_lower'], data['yhat_upper'], 
+                 color='lightblue', alpha=0.9, label='Confidence Interval')
+
+plt.xlabel('Date')
+plt.ylabel('Forecasted Value')
+plt.title('Prophet Forecast')
+plt.legend()
+plt.grid(True)
+plt.show()
